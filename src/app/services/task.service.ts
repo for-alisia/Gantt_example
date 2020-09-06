@@ -1,14 +1,42 @@
 /** Angular */
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 /** Models */
 import { Task } from '../models/Task';
+/** Custom */
+import { HandleError } from './service-helper';
 
 @Injectable()
 export class TaskService {
+  private taskUrl = 'api/tasks';
+
+  constructor(private http: HttpClient) {}
+
   get(): Promise<Task[]> {
-    return Promise.resolve([
-      { id: 1, text: 'Project_1', start_date: '2020-09-10 00:00', duration: 3, progress: 0.8 },
-      { id: 2, text: 'Project_2', start_date: '2020-09-12 00:00', duration: 2, progress: 0.2 }
-    ]);
+    return this.http
+      .get(this.taskUrl)
+      .toPromise()
+      .catch(HandleError);
+  }
+
+  insert(task: Task): Promise<Task> {
+    return this.http
+      .post(this.taskUrl, task)
+      .toPromise()
+      .catch(HandleError);
+  }
+
+  update(task: Task): Promise<void> {
+    return this.http
+      .put('${this.taskUrl}/${task.id}', task)
+      .toPromise()
+      .catch(HandleError);
+  }
+
+  remove(id: number): Promise<void> {
+    return this.http
+      .delete('${this.taskUrl}/${id}')
+      .toPromise()
+      .catch(HandleError);
   }
 }
